@@ -6,6 +6,7 @@
   "include": [
     "next-env.d.ts",
     ".eslintrc.js",
+    "next.config.js",
     "**/*.ts",
     "**/*.tsx"
   ]

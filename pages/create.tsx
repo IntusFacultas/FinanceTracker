@@ -1,85 +1,60 @@
-// pages/create.tsx
-
-import React, { useState } from 'react';
-import Layout from '../components/Layout';
+import { FunctionComponent } from 'react';
 import Router from 'next/router';
+import { Input, Textarea } from '../components/Primitives/Form';
+import Button from '../components/Primitives/Button';
+import { Anchor, Heading, Paragraph } from '../components/Primitives/Typography';
+import { Flexbox } from '../components/Primitives/Flexbox';
+import { z } from 'zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-const Draft: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+const FormSchema = z.object({
+    title: z.string().min(1, { message: 'Title is required' }),
+    content: z.string().min(1, { message: 'Content is required' }),
+});
 
-  // /pages/create.tsx
-  const submitData = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    try {
-      const body = { title, content };
-      await fetch('/api/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      await Router.push('/drafts');
-    } catch (error) {
-      console.error(error);
-    }
-  };
+type FormSchemaType = z.infer<typeof FormSchema>;
 
+const Draft: FunctionComponent = () => {
+    const { register, handleSubmit, formState } = useForm<FormSchemaType>({
+        resolver: zodResolver(FormSchema),
+    });
 
-  return (
-    <Layout>
-      <div>
-        <form onSubmit={submitData}>
-          <h1>New Draft</h1>
-          <input
-            autoFocus
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-            type="text"
-            value={title}
-          />
-          <textarea
-            cols={50}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Content"
-            rows={8}
-            value={content}
-          />
-          <input disabled={!content || !title} type="submit" value="Create" />
-          <a className="back" href="#" onClick={() => Router.push('/')}>
-            or Cancel
-          </a>
-        </form>
-      </div>
-      <style jsx>{`
-        .page {
-          background: var(--geist-background);
-          padding: 3rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+    const { errors, isSubmitting, isValid } = formState;
+    console.log(errors);
+
+    const onSubmit: SubmitHandler<FormSchemaType> = async data => {
+        try {
+            await fetch('/api/post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            await Router.push('/drafts');
+        } catch (error) {
+            console.error(error);
         }
+    };
 
-        input[type='text'],
-        textarea {
-          width: 100%;
-          padding: 0.5rem;
-          margin: 0.5rem 0;
-          border-radius: 0.25rem;
-          border: 0.125rem solid rgba(0, 0, 0, 0.2);
-        }
-
-        input[type='submit'] {
-          background: #ececec;
-          border: 0;
-          padding: 1rem 2rem;
-        }
-
-        .back {
-          margin-left: 1rem;
-        }
-      `}</style>
-    </Layout>
-  );
+    return (
+        <>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Heading level={1}>New Draft</Heading>
+                <Input autoFocus placeholder="Title" type="text" {...register('title')} disabled={isSubmitting} />
+                {errors.title && <Paragraph color="textRed">{errors.title}</Paragraph>}
+                <Textarea cols={50} placeholder="Content" rows={8} {...register('content')} disabled={isSubmitting} />
+                {errors.content && <Paragraph color="textRed">{errors.content}</Paragraph>}
+                <Flexbox gap="sm">
+                    <Button variant="default" disabled={!isValid || isSubmitting}>
+                        Create
+                    </Button>
+                    <Anchor href="#" onClick={() => Router.push('/')}>
+                        or Cancel
+                    </Anchor>
+                </Flexbox>
+            </form>
+        </>
+    );
 };
 
 export default Draft;
