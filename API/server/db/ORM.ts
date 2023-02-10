@@ -1,6 +1,8 @@
+/* istanbul ignore file */
+
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const ORM = new PrismaClient();
 
 declare global {
     // eslint-disable-next-line no-var, no-shadow
@@ -8,7 +10,7 @@ declare global {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-    global.prisma = prisma;
+    global.prisma = ORM;
 }
 
-export default prisma;
+export default ORM;

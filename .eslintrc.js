@@ -12,14 +12,24 @@ module.exports = {
         browser: true,
         es6: true,
     },
+    overrides: [
+        {
+            files: ['**/*-test.ts', '**/test/**/*.ts', '**/tests/**/*.ts', '**/test/**/*.test.ts', './jest-setup.ts'],
+            env: {
+                jest: true,
+            },
+        },
+    ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
         sourceType: 'module',
         project: ['./tsconfig.eslint.json'],
         tsconfigRootDir: __dirname,
     },
-    plugins: ['@typescript-eslint', 'prettier', 'react-hooks', 'react', 'import'],
+    plugins: ['@typescript-eslint', 'jest-extended', 'prettier', 'react-hooks', 'react', 'import'],
     rules: {
+        'jest-extended/prefer-to-be-true': 'warn',
+        'jest-extended/prefer-to-be-false': 'error',
         'prettier/prettier': ERROR,
         quotes: [
             ERROR,
@@ -31,6 +41,7 @@ module.exports = {
         ],
         '@typescript-eslint/no-var-requires': OFF,
         '@typescript-eslint/no-empty-function': OFF,
+        'no-unused-vars': OFF,
         '@typescript-eslint/no-unused-vars': [
             ERROR,
             {
@@ -138,7 +149,6 @@ module.exports = {
         'import/named': ERROR,
         'import/no-unresolved': ERROR,
         'import/export': ERROR,
-        'no-unused-vars': [ERROR, { ignoreRestSiblings: true }],
     },
     settings: {
         react: {

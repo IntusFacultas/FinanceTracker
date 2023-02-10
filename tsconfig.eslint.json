@@ -7,6 +7,9 @@
     "next-env.d.ts",
     ".eslintrc.js",
     "next.config.js",
+    "jest.config.js",
+    "jest-setup.ts",
+    "jest-shim.ts",
     "**/*.ts",
     "**/*.tsx"
   ]

@@ -4,12 +4,14 @@
     "node_modules"
   ],
   "include": [
+    "global.d.ts",
     "next-env.d.ts",
     "components/**/*.ts",
     "components/**/*.tsx",
     "lib/**/*.ts",
     "lib/**/*.tsx",
     "pages/**/*.ts",
-    "pages/**/*.tsx",
+    "pages/**/*.tsx", 
+    "API/**/*.ts",
   ]
 }

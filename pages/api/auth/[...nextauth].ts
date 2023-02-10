@@ -1,8 +1,11 @@
+/* istanbul ignore file */
+
 import { NextApiHandler } from 'next';
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GitHubProvider from 'next-auth/providers/github';
-import prisma from '../../../lib/prisma';
+import ORM from '../../../API/server/db/ORM';
+import { IdentifiedSession, isUser } from '../../../API/server/session';
 
 if (!process.env.GITHUB_ID) {
     throw new Error('GITHUB_ID is not defined in the environment');
@@ -11,14 +14,27 @@ if (!process.env.GITHUB_SECRET) {
     throw new Error('GITHUB_SECRET is not defined in th environment');
 }
 
-const options = {
+const options: NextAuthOptions = {
     providers: [
         GitHubProvider({
             clientId: process.env.GITHUB_ID,
             clientSecret: process.env.GITHUB_SECRET,
         }),
     ],
-    adapter: PrismaAdapter(prisma),
+    callbacks: {
+        session: async ({ session, user }) => {
+            if (!isUser(user)) {
+                return session;
+            }
+            const identifiedSession: IdentifiedSession = {
+                ...session,
+                user,
+                id: user.id,
+            };
+            return identifiedSession;
+        },
+    },
+    adapter: PrismaAdapter(ORM),
     secret: process.env.SECRET,
 };
 
