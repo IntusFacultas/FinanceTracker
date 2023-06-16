@@ -13,12 +13,12 @@ const findOrCreateCategory = async (title: string, reporterID: number) => {
     if (!category) {
         category = await createCategory(title, reporterID);
         return {
-            categoryCreated: true,
+            created: true,
             category,
         };
     }
     return {
-        categoryCreated: false,
+        created: false,
         category,
     };
 };

@@ -6,6 +6,12 @@ const CONFIG = {
                 METHOD: 'POST',
             },
         },
+        CATEGORY: {
+            CREATE: {
+                ENDPOINT: '/api/category',
+                METHOD: 'POST',
+            },
+        },
     },
     FETCH_CONFIG: {
         headers: {

@@ -1,7 +1,9 @@
 import Record from './record';
+import Category from './category';
 
 const API = {
-    Record: Record,
+    Record,
+    Category,
 };
 
 export default API;

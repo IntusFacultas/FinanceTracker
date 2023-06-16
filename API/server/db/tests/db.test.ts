@@ -12,6 +12,8 @@ jest.mock('../ORM', () => ({
         },
         category: {
             create: jest.fn(),
+            delete: jest.fn(),
+            findMany: jest.fn(),
             findFirst: jest.fn(),
         },
     },
@@ -210,6 +212,34 @@ describe('DBCategory', () => {
             expect(result).toStrictEqual(databaseCategory);
         });
     });
+    describe('DBCategory.findAll', () => {
+        const category: Category = {
+            id: 1,
+            uuid: `${v4()}`,
+            title: 'Something',
+            reporterID: 1,
+        };
+
+        it('performs a findMany request to the ORM', async () => {
+            const reporterID = 1;
+            await DBCategory.findAll(reporterID);
+            expect(mockedORM.category.findMany).toHaveBeenCalledWith({
+                where: {
+                    reporter: {
+                        id: reporterID,
+                    },
+                },
+                orderBy: {
+                    id: 'asc',
+                },
+            });
+        });
+        it('returns the list of records with category', async () => {
+            mockedORM.category.findMany.mockResolvedValueOnce([category]);
+            const returnValue = await DBCategory.findAll(1);
+            expect(returnValue).toStrictEqual([category]);
+        });
+    });
     describe('DBCategory.findOrCreate', () => {
         it('returns the first category found matching the parameters', async () => {
             const title = 'category title';
@@ -223,7 +253,7 @@ describe('DBCategory', () => {
             mockedORM.category.findFirst.mockResolvedValueOnce(databaseCategory);
             const result = await DBCategory.findOrCreate(title, reporterID);
             expect(result).toStrictEqual({
-                categoryCreated: false,
+                created: false,
                 category: databaseCategory,
             });
         });
@@ -267,9 +297,38 @@ describe('DBCategory', () => {
             mockedORM.category.create.mockResolvedValueOnce(databaseCategory);
             const result = await DBCategory.findOrCreate(title, reporterID);
             expect(result).toStrictEqual({
-                categoryCreated: true,
+                created: true,
                 category: databaseCategory,
             });
+        });
+    });
+    describe('DBCategory.delete', () => {
+        it('performs a delete request to the ORM', async () => {
+            const databaseCategory: Category = {
+                id: 1,
+                uuid: `${v4()}`,
+                title: 'Something',
+                reporterID: 1,
+            };
+            await DBCategory.delete(1);
+            mockedORM.category.delete.mockResolvedValueOnce(databaseCategory);
+            expect(mockedORM.category.delete).toHaveBeenCalledWith({
+                where: {
+                    id: 1,
+                },
+            });
+        });
+        it('returns the result of the delete operation', async () => {
+            const databaseCategory: Category = {
+                id: 1,
+                uuid: `${v4()}`,
+                title: 'Something',
+                reporterID: 1,
+            };
+            await DBCategory.delete(1);
+            mockedORM.category.delete.mockResolvedValueOnce(databaseCategory);
+            const result = await DBCategory.delete(1);
+            expect(result).toStrictEqual(databaseCategory);
         });
     });
 });

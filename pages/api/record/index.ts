@@ -8,7 +8,7 @@ import withWrappers from '../../../API/server/routes/withWrappers';
 import withErrorHandling from '../../../API/server/routes/withErrorHandling';
 import withMethodRestriction from '../../../API/server/routes/withMethodRestriction';
 
-type RecordCreationResult = {
+export type RecordCreationResult = {
     record: NetworkRecord;
     category: Category;
     categoryCreated: boolean;
@@ -18,14 +18,14 @@ const handler: AuthRequiredNextAPIRouteHandler = async (req, res, session) => {
     const networkNewRecord = req.body as NetworkNewRecord;
     const newRecord = NetworkMappers.NewRecord.fromNetwork(networkNewRecord);
     const { category: title, ...data } = newRecord;
-    const { category, categoryCreated } = await DBCategory.findOrCreate(title, session.id);
+    const { category, created } = await DBCategory.findOrCreate(title, session.id);
     const record = await DBRecord.create(data, session.id, category.id);
     const response: APISuccessResponse<RecordCreationResult> = {
         success: true,
         data: {
             record: NetworkMappers.Record.toNetwork(record),
             category,
-            categoryCreated,
+            categoryCreated: created,
         },
     };
     return res.json(response);

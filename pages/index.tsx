@@ -9,14 +9,14 @@ import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { format } from 'date-fns';
 import { Category } from '@prisma/client';
-
+const DATE_FORMAT = 'yyyy-MM-dd';
 const columns: GridColDef<RecordWithCategory>[] = [
     {
         field: 'date',
         headerName: 'Date',
         valueGetter: ({ row }: GridValueGetterParams<string, RecordWithCategory>) => {
             const { date } = row;
-            return format(date, 'yyyy-MM-dd');
+            return date;
         },
     },
     {
@@ -41,7 +41,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
             },
         };
     }
-    const records = await DBRecord.findAllWithCategory(session.user.id);
+    const records = (await DBRecord.findAllWithCategory(session.user.id)).map(record => ({
+        ...record,
+        date: format(record.date, DATE_FORMAT),
+    }));
     return {
         props: { records },
     };
@@ -56,7 +59,7 @@ const GraphView: FunctionComponent<GraphViewProps> = ({ records }) => {
     return (
         <>
             <Heading level={1}>TODO</Heading>
-            <DataGrid rows={records} columns={columns} pageSize={25} rowsPerPageOptions={[5]} />
+            <DataGrid autoHeight rows={records} columns={columns} pageSize={25} rowsPerPageOptions={[5]} />
         </>
     );
 };
